@@ -1,121 +1,121 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
-class Aluno
+namespace Atividades
 {
-    public string RA { get; set; }
-    public string Nome { get; set; }
-    public int Idade { get; set; }
-}
-
-class Program
-{
-    static List<Aluno> alunos = new List<Aluno>();
-
-    static void Main()
+    public class Produto
     {
-        while (true)
-        {
-            Console.WriteLine("\nMenu:");
-            Console.WriteLine("1 - Cadastrar aluno");
-            Console.WriteLine("2 - Listar alunos");
-            Console.WriteLine("3 - Alterar aluno");
-            Console.WriteLine("4 - Remover aluno");
-            Console.WriteLine("5 - Sair");
-            Console.Write("Escolha uma opção: ");
-            string opcao = Console.ReadLine();
+        public string Descricao { get; set; }
+        public decimal Valor { get; set; }
 
-            switch (opcao)
+        public override string ToString()
+        {
+            return $"Descrição: {Descricao}, Valor: {Valor.ToString("C", CultureInfo.CurrentCulture)}";
+        }
+    }
+
+    class Program
+    {
+        static List<Produto> produtos = new();
+
+        static void Main(string[] args)
+        {
+            while (true)
             {
-                case "1":
-                    CadastrarAluno();
-                    break;
-                case "2":
-                    ListarAlunos();
-                    break;
-                case "3":
-                    AlterarAluno();
-                    break;
-                case "4":
-                    RemoverAluno();
-                    break;
-                case "5":
-                    return;
-                default:
-                    Console.WriteLine("Opção inválida.");
-                    break;
+                Console.WriteLine("\nMenu de Produtos:");
+                Console.WriteLine("1 - Cadastrar produto");
+                Console.WriteLine("2 - Remover produto");
+                Console.WriteLine("3 - Pesquisar produto");
+                Console.WriteLine("4 - Mostrar produto com menor valor");
+                Console.WriteLine("5 - Sair");
+                Console.Write("Escolha uma opção: ");
+                var opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        CadastrarProduto();
+                        break;
+                    case "2":
+                        RemoverProduto();
+                        break;
+                    case "3":
+                        PesquisarProduto();
+                        break;
+                    case "4":
+                        MostrarProdutoMenorValor();
+                        break;
+                    case "5":
+                        Console.WriteLine("Saindo...");
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida.");
+                        break;
+                }
             }
         }
-    }
 
-    static void CadastrarAluno()
-    {
-        Console.Write("RA: ");
-        string ra = Console.ReadLine();
-        if (alunos.Any(a => a.RA == ra))
+        static void CadastrarProduto()
         {
-            Console.WriteLine("RA já cadastrado.");
-            return;
-        }
-        Console.Write("Nome: ");
-        string nome = Console.ReadLine();
-        Console.Write("Idade: ");
-        if (!int.TryParse(Console.ReadLine(), out int idade))
-        {
-            Console.WriteLine("Idade inválida.");
-            return;
-        }
-        alunos.Add(new Aluno { RA = ra, Nome = nome, Idade = idade });
-        Console.WriteLine("Aluno cadastrado com sucesso.");
-    }
+            Console.Write("Informe a descrição do produto: ");
+            var descricao = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(descricao))
+            {
+                Console.WriteLine("Descrição não pode ser vazia.");
+                return;
+            }
 
-    static void ListarAlunos()
-    {
-        if (alunos.Count == 0)
-        {
-            Console.WriteLine("Nenhum aluno cadastrado.");
-            return;
-        }
-        foreach (var aluno in alunos)
-        {
-            Console.WriteLine($"RA: {aluno.RA}, Nome: {aluno.Nome}, Idade: {aluno.Idade}");
-        }
-    }
+            Console.Write("Informe o valor do produto: ");
+            if (!decimal.TryParse(Console.ReadLine(), NumberStyles.Any, CultureInfo.CurrentCulture, out var valor) || valor < 0)
+            {
+                Console.WriteLine("Valor inválido.");
+                return;
+            }
 
-    static void AlterarAluno()
-    {
-        Console.Write("Informe o RA do aluno a ser alterado: ");
-        string ra = Console.ReadLine();
-        var aluno = alunos.FirstOrDefault(a => a.RA == ra);
-        if (aluno == null)
-        {
-            Console.WriteLine("Aluno não encontrado.");
-            return;
+            produtos.Add(new Produto { Descricao = descricao, Valor = valor });
+            Console.WriteLine("Produto cadastrado com sucesso.");
         }
-        Console.Write("Novo nome: ");
-        aluno.Nome = Console.ReadLine();
-        Console.Write("Nova idade: ");
-        if (!int.TryParse(Console.ReadLine(), out int idade))
-        {
-            Console.WriteLine("Idade inválida.");
-            return;
-        }
-        aluno.Idade = idade;
-        Console.WriteLine("Dados alterados com sucesso.");
-    }
 
-    static void RemoverAluno()
-    {
-        Console.Write("Informe o RA do aluno a ser removido: ");
-        string ra = Console.ReadLine();
-        var aluno = alunos.FirstOrDefault(a => a.RA == ra);
-        if (aluno == null)
+        static void RemoverProduto()
         {
-            Console.WriteLine("Aluno não encontrado.");
-            return;
+            Console.Write("Informe a descrição do produto a remover: ");
+            var descricao = Console.ReadLine();
+            var produto = produtos.FirstOrDefault(p => p.Descricao.Equals(descricao, StringComparison.OrdinalIgnoreCase));
+            if (produto == null)
+            {
+                Console.WriteLine("Produto não encontrado.");
+                return;
+            }
+            produtos.Remove(produto);
+            Console.WriteLine("Produto removido com sucesso.");
         }
-        alunos.Remove(aluno);
-        Console.WriteLine("Aluno removido com sucesso.");
+
+        static void PesquisarProduto()
+        {
+            Console.Write("Informe a descrição do produto a pesquisar: ");
+            var descricao = Console.ReadLine();
+            var produto = produtos.FirstOrDefault(p => p.Descricao.Equals(descricao, StringComparison.OrdinalIgnoreCase));
+            if (produto == null)
+            {
+                Console.WriteLine("Produto não encontrado.");
+                return;
+            }
+            Console.WriteLine("Produto encontrado:");
+            Console.WriteLine(produto);
+        }
+
+        static void MostrarProdutoMenorValor()
+        {
+            if (!produtos.Any())
+            {
+                Console.WriteLine("Nenhum produto cadastrado.");
+                return;
+            }
+            var menor = produtos.MinBy(p => p.Valor);
+            Console.WriteLine("Produto com menor valor:");
+            Console.WriteLine(menor);
+        }
     }
 }
